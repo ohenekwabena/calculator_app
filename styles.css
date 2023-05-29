@@ -3,3 +3,7 @@
     margin-left: auto;
     margin-right: auto;
 } */
+
+.previous-operand, .current-operand{
+    height: 50px;
+}

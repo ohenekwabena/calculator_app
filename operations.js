@@ -1,20 +1,27 @@
+//create calculator class
 class Calculator {
   constructor(previousOperandContent, currentOperandContent) {
     this.previousOperandContent = previousOperandContent;
     this.currentOperandContent = currentOperandContent;
+    this.clear();
   }
 
+  //clear function to reset parameters
   clear() {
-    this.currentOperand = "";
+    this.currentOperand = " ";
     this.previousOperand = "";
     this.operation = undefined;
   }
 
-  delete() {}
+  //delete function to remove single character from current operand
+  delete() {
+    this.currentOperand = this.currentOperand.toString().slice(0, -1);
+  }
 
+  //function to and next clicked number to previously clicked number
   appendNumber(number) {
     if (number === "." && this.currentOperand.includes(".")) return;
-    this.currentOperand = this.currentOperand.toString() + number.toString();
+    this.currentOperand += number.toString();
   }
 
   chooseOperation(operation) {
@@ -29,6 +36,7 @@ class Calculator {
     this.currentOperand = "";
   }
 
+  //compute function to perform arithmetic operation based on operation
   compute() {
     let computation;
     const prev = parseFloat(this.previousOperand);
@@ -45,7 +53,7 @@ class Calculator {
         computation = prev - current;
         break;
 
-      case "/":
+      case "÷":
         computation = prev / current;
         break;
 
@@ -62,9 +70,43 @@ class Calculator {
     this.previousOperand = "";
   }
 
+  //function to display numbers with delimiter.
+  getDisplayNumber(number) {
+    //splitting display value into decimal and fractional parts
+    const stringNumber = number.toString();
+    const integerDigits = parseFloat(stringNumber.split(".")[0]);
+    const decimalDigits = stringNumber.split(".")[1];
+
+    let integerDisplay;
+
+    if (isNaN(integerDigits)) {
+      integerDisplay = "";
+    } else {
+      integerDisplay = integerDigits.toLocaleString("en", {
+        maximumFractionDigits: 0,
+      });
+    }
+
+    if (decimalDigits != null) {
+      return `${integerDigits}.${decimalDigits}`;
+    } else {
+      return integerDisplay;
+    }
+  }
+
+  //display numbers
   updateDisplay() {
-    this.currentOperandContent.innerText = this.currentOperand;
-    this.previousOperandContent.innerText = this.periodOperand;
+    this.currentOperandContent.innerText = this.getDisplayNumber(
+      this.currentOperand
+    );
+
+    if (this.operation != null) {
+      this.previousOperandContent.innerText = `${this.getDisplayNumber(
+        this.previousOperand
+      )} ${this.operation}`;
+    } else {
+      this.previousOperandContent.innerText = "";
+    }
   }
 }
 
@@ -73,9 +115,12 @@ const operationButtons = document.querySelectorAll("[data-operation]");
 const equalsButton = document.querySelector("[data-equals]");
 const deleteButton = document.querySelector("[data-delete]");
 const clearButton = document.querySelector("[data-clear]");
-const previousOperandContent = document.querySelector("[data-previousOperand]");
-const currentOperandContent = document.querySelector("[data-currentOperand]");
+const previousOperandContent = document.querySelector(
+  "[data-previous-operand]"
+);
+const currentOperandContent = document.querySelector("[data-current-operand]");
 
+//creating calculator object
 const calculator = new Calculator(
   previousOperandContent,
   currentOperandContent
@@ -99,5 +144,15 @@ operationButtons.forEach((button) => {
 
 equalsButton.addEventListener("click", (button) => {
   calculator.compute();
+  calculator.updateDisplay();
+});
+
+clearButton.addEventListener("click", (button) => {
+  calculator.clear();
+  calculator.updateDisplay();
+});
+
+deleteButton.addEventListener("click", (button) => {
+  calculator.delete();
   calculator.updateDisplay();
 });
